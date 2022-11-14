@@ -1,0 +1,51 @@
+openapi: "3.0.0"
+info:
+  title: Otto notification service
+  version: "1.0"
+paths:
+  /notification:
+    get:
+      operationId: getNotificationsForUserV1
+      summary: Get notifications for a user
+      responses:
+        '200':
+          description: 200 response
+        '403':
+          description: 403 response
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - uuid
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        profile_pic:
+          type: string
+    Notification:
+      type: object
+      required:
+        - uuid
+        - user
+        - seen
+        - link
+        - description
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+        seen:
+          type: boolean
+          default: false
+        link:
+          type: string
+        description:
+          type: string
+        triggered_by_user:
+          $ref: '#/components/schemas/User'
