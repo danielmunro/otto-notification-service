@@ -22,10 +22,15 @@ components:
         uuid:
           type: string
           format: uuid
+        username:
+          type: string
         name:
           type: string
         profile_pic:
           type: string
+        is_banned:
+          type: boolean
+          default: false
     Notification:
       type: object
       required:
@@ -49,3 +54,17 @@ components:
           type: string
         triggered_by_user:
           $ref: '#/components/schemas/User'
+    Follow:
+      type: object
+      required:
+        - uuid
+        - user
+        - following
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        user:
+          $ref: "#/components/schemas/User"
+        following:
+          $ref: "#/components/schemas/User"
