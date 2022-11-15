@@ -7,12 +7,12 @@ import (
 
 func GetNotificationModelFromEntity(notification *entity.Notification) *model.Notification {
 	return &model.Notification{
-		Uuid:            notification.Uuid.String(),
-		User:            *GetUserModelFromEntity(notification.User),
-		Seen:            notification.Seen,
-		Link:            notification.Link,
-		Description:     notification.Description,
-		TriggeredByUser: *GetUserModelFromEntity(notification.TriggeredByUser),
+		Uuid:             notification.Uuid.String(),
+		User:             *GetUserModelFromEntity(notification.User),
+		Seen:             notification.Seen,
+		Link:             notification.Link,
+		NotificationType: notification.NotificationType,
+		TriggeredByUser:  *GetUserModelFromEntity(notification.TriggeredByUser),
 	}
 }
 
