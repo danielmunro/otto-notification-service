@@ -11,14 +11,20 @@ package main
 
 import (
 	"github.com/danielmunro/otto-notification-service/internal"
+	"github.com/danielmunro/otto-notification-service/internal/middleware"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 )
 
 func main() {
-	log.Printf("Server started")
+	serveHttp()
+}
 
+func serveHttp() {
 	router := internal.NewRouter()
-
-	log.Fatal(http.ListenAndServe(":8083", router))
+	handler := cors.AllowAll().Handler(router)
+	log.Print("http listening on 8083")
+	log.Fatal(http.ListenAndServe(":8083",
+		middleware.ContentTypeMiddleware(handler)))
 }
