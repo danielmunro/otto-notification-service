@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: community-service
+  name: notification-service
 spec:
   minReadySeconds: 3
   revisionHistoryLimit: 5
@@ -12,45 +12,45 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: community-service
+      app: notification-service
   template:
     metadata:
       labels:
-        app: community-service
+        app: notification-service
     spec:
       containers:
-      - name: otto-community-service
-        image: ghcr.io/danielmunro/otto-community-service:v0.1.20
+      - name: otto-notification-service
+        image: ghcr.io/danielmunro/otto-notification-service:v0.1.4
         imagePullPolicy: Always
         ports:
-          - containerPort: 8081
+          - containerPort: 8083
             name: http
             protocol: TCP
         env:
           - name: POSTGRES_HOST
             valueFrom:
               secretKeyRef:
-                name: postgres-community
+                name: postgres-notification
                 key: host
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
-                name: postgres-community
+                name: postgres-notification
                 key: user
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: postgres-community
+                name: postgres-notification
                 key: password
           - name: POSTGRES_PORT
             valueFrom:
               secretKeyRef:
-                name: postgres-community
+                name: postgres-notification
                 key: port
           - name: POSTGRES_DBNAME
             valueFrom:
               secretKeyRef:
-                name: postgres-community
+                name: postgres-notification
                 key: database
           - name: KAFKA_BOOTSTRAP_SERVERS
             valueFrom:
@@ -79,5 +79,5 @@ spec:
                 key: sasl_password
       imagePullSecrets:
       - name: dockerconfigjson-github-com
-      - name: postgres-community
+      - name: postgres-notification
       - name: kafka
