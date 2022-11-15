@@ -26,11 +26,11 @@ func loopKafkaReader() error {
 	for {
 		log.Print("listening for kafka messages")
 		data, err := reader.ReadMessage(-1)
-		log.Print("message received on topic :: ", data.TopicPartition.String())
 		if err != nil {
 			log.Print(err)
 			return nil
 		}
+		log.Print("message received on topic :: ", data.TopicPartition.String())
 		log.Print("data :: ", string(data.Value))
 		if *data.TopicPartition.Topic == "follows" {
 			userFollowed(userRepository, notificationRepository, data.Value)
