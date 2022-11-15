@@ -15,9 +15,6 @@ spec:
       app: community-service
   template:
     metadata:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9797"
       labels:
         app: community-service
     spec:
