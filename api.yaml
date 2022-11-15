@@ -50,21 +50,13 @@ components:
           default: false
         link:
           type: string
-        description:
-          type: string
+        notificationType:
+          $ref: '#/components/schemas/NotificationType'
         triggered_by_user:
           $ref: '#/components/schemas/User'
-    Follow:
-      type: object
-      required:
-        - uuid
-        - user
-        - following
-      properties:
-        uuid:
-          type: string
-          format: uuid
-        user:
-          $ref: "#/components/schemas/User"
-        following:
-          $ref: "#/components/schemas/User"
+    NotificationType:
+      type: string
+      enum:
+        - liked
+        - followed
+        - replied
