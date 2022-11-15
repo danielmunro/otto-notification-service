@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  minReadySeconds: 3
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 60
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: otto-notification-service
+        image: ghcr.io/danielmunro/otto-notification-service:v0.1.4
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8083
+            name: http
+            protocol: TCP
+        env:
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: postgres-notification
+                key: host
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-notification
+                key: user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-notification
+                key: password
+          - name: POSTGRES_PORT
+            valueFrom:
+              secretKeyRef:
+                name: postgres-notification
+                key: port
+          - name: POSTGRES_DBNAME
+            valueFrom:
+              secretKeyRef:
+                name: postgres-notification
+                key: database
+          - name: KAFKA_BOOTSTRAP_SERVERS
+            valueFrom:
+              secretKeyRef:
+                name: kafka
+                key: bootstrap_servers
+          - name: KAFKA_SECURITY_PROTOCOL
+            valueFrom:
+              secretKeyRef:
+                name: kafka
+                key: security_protocol
+          - name: KAFKA_SASL_MECHANISM
+            valueFrom:
+              secretKeyRef:
+                name: kafka
+                key: sasl_mechanism
+          - name: KAFKA_SASL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: kafka
+                key: sasl_username
+          - name: KAFKA_SASL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: kafka
+                key: sasl_password
+      imagePullSecrets:
+      - name: dockerconfigjson-github-com
+      - name: postgres-notification
+      - name: kafka
