@@ -64,6 +64,13 @@ func userFollowed(
 		return
 	}
 	following, err := userRepository.FindOneByUuid(followingUuid)
+	if err != nil {
+		return
+	}
+	search, _ := notificationRepository.FindFollowNotification(user, following)
+	if search != nil {
+		return
+	}
 	notificationUuid := uuid.New()
 	notification := &entity.Notification{
 		Uuid:              &notificationUuid,

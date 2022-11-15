@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"errors"
 	"github.com/danielmunro/otto-notification-service/internal/entity"
+	"github.com/danielmunro/otto-notification-service/internal/model"
 	"github.com/jinzhu/gorm"
 )
 
@@ -11,6 +13,22 @@ type NotificationRepository struct {
 
 func CreateNotificationRepository(conn *gorm.DB) *NotificationRepository {
 	return &NotificationRepository{conn}
+}
+
+func (n *NotificationRepository) FindFollowNotification(user *entity.User, following *entity.User) (*entity.Notification, error) {
+	notification := &entity.Notification{}
+	n.conn.
+		Table("notifications").
+		Where(
+			"notifications.user_id = ? AND notifications.triggered_by_user_id = ? AND notifications.notification_type = ?",
+			following.ID,
+			user.ID,
+			model.FOLLOWED,
+		).Find(notification)
+	if notification.ID == 0 {
+		return nil, errors.New("notification not found")
+	}
+	return notification, nil
 }
 
 func (n *NotificationRepository) FindByUser(user *entity.User, limit int) []*entity.Notification {

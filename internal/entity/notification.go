@@ -11,9 +11,9 @@ type Notification struct {
 	Uuid              *uuid.UUID             `gorm:"type:uuid;default:uuid_generate_v4()"`
 	Seen              bool                   `gorm:"default:false"`
 	Link              string                 `gorm:"not null"`
-	NotificationType  model.NotificationType `gorm:"unique_index:idx_user_triggered_type"`
-	UserID            uint                   `gorm:"unique_index:idx_user_triggered_type"`
+	NotificationType  model.NotificationType `gorm:"index"`
+	UserID            uint                   `gorm:"index"`
 	User              *User
-	TriggeredByUserID uint `gorm:"unique_index:idx_user_triggered_type"`
+	TriggeredByUserID uint `gorm:"index"`
 	TriggeredByUser   *User
 }
