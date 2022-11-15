@@ -10,6 +10,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.4.0
+	github.com/rs/cors v1.8.2
 	golang.org/x/oauth2 v0.2.0
 )
 
