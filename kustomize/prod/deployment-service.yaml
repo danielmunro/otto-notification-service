@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: otto-notification-service
-        image: ghcr.io/danielmunro/otto-notification-service:v0.1.9
+        image: ghcr.io/danielmunro/otto-notification-service:v0.1.10
         imagePullPolicy: Always
         ports:
           - containerPort: 8083
