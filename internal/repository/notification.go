@@ -37,7 +37,7 @@ func (n *NotificationRepository) FindByUser(user *entity.User, limit int) []*ent
 		Preload("User").
 		Preload("TriggeredByUser").
 		Table("notifications").
-		Where("notifications.user_id = ? AND notifications.seen = false", user.ID).
+		Where("notifications.user_id = ?", user.ID).
 		Limit(limit).
 		Order("id desc").
 		Find(&notifications)
