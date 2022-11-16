@@ -9,7 +9,6 @@ import (
 	"github.com/danielmunro/otto-notification-service/internal/repository"
 	"github.com/google/uuid"
 	"log"
-	"time"
 )
 
 func InitializeAndRunLoop() {
@@ -50,11 +49,6 @@ func userFollowed(
 ) {
 	log.Print("consuming user followed message :: ", string(data))
 	result := decodeToMap(data)
-	deleted := result["deleted_at"].(string)
-	_, err := time.Parse("2006-01-02", deleted)
-	if err != nil {
-		return
-	}
 	userData := result["user"].(map[string]interface{})
 	userUuid := uuid.MustParse(userData["uuid"].(string))
 	followingData := result["following"].(map[string]interface{})
