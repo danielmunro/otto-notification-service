@@ -3,10 +3,10 @@ package kafka
 import (
 	"encoding/json"
 	"github.com/danielmunro/otto-notification-service/internal/db"
-	"github.com/danielmunro/otto-notification-service/internal/entity"
 	"github.com/danielmunro/otto-notification-service/internal/mapper"
 	"github.com/danielmunro/otto-notification-service/internal/model"
 	"github.com/danielmunro/otto-notification-service/internal/repository"
+	"github.com/danielmunro/otto-notification-service/internal/service"
 	"github.com/google/uuid"
 	"log"
 )
@@ -20,9 +20,9 @@ func InitializeAndRunLoop() {
 
 func loopKafkaReader() error {
 	reader := GetReader()
+	notificationService := service.CreateNotificationService()
 	conn := db.CreateDefaultConnection()
 	userRepository := repository.CreateUserRepository(conn)
-	notificationRepository := repository.CreateNotificationRepository(conn)
 	for {
 		log.Print("listening for kafka messages")
 		data, err := reader.ReadMessage(-1)
@@ -37,14 +37,13 @@ func loopKafkaReader() error {
 		} else if *data.TopicPartition.Topic == "images" {
 			updateUserImage(userRepository, data.Value)
 		} else if *data.TopicPartition.Topic == "follows" {
-			userFollowed(userRepository, notificationRepository, data.Value)
+			userFollowed(notificationService, data.Value)
 		}
 	}
 }
 
 func userFollowed(
-	userRepository *repository.UserRepository,
-	notificationRepository *repository.NotificationRepository,
+	notificationService *service.NotificationService,
 	data []byte,
 ) {
 	log.Print("consuming user followed message :: ", string(data))
@@ -53,28 +52,7 @@ func userFollowed(
 	userUuid := uuid.MustParse(userData["uuid"].(string))
 	followingData := result["following"].(map[string]interface{})
 	followingUuid := uuid.MustParse(followingData["uuid"].(string))
-	user, err := userRepository.FindOneByUuid(userUuid)
-	if err != nil {
-		return
-	}
-	following, err := userRepository.FindOneByUuid(followingUuid)
-	if err != nil {
-		return
-	}
-	search, _ := notificationRepository.FindFollowNotification(user, following)
-	if search != nil {
-		return
-	}
-	notificationUuid := uuid.New()
-	notification := &entity.Notification{
-		Uuid:              &notificationUuid,
-		UserID:            following.ID,
-		Seen:              false,
-		Link:              "https://thirdplaceapp.com/u/" + user.Username,
-		NotificationType:  model.FOLLOWED,
-		TriggeredByUserID: user.ID,
-	}
-	notificationRepository.Create(notification)
+	notificationService.CreateFollowNotification(userUuid, followingUuid)
 }
 
 func updateUserImage(userRepository *repository.UserRepository, data []byte) {

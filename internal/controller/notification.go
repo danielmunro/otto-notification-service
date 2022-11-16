@@ -18,7 +18,7 @@ func AcknowledgeNotificationsForUserV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	notificationModel, _ := model.DecodeRequestToNotificationAcknowledgement(r)
-	err := service.CreateNotificationService().AcknowledgeNotificationsForUser(
+	err := service.CreateNotificationService().AcknowledgeNotifications(
 		uuid.MustParse(session.User.Uuid),
 		notificationModel,
 	)
@@ -35,7 +35,7 @@ func GetNotificationsForUserV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	notifications, err := service.CreateNotificationService().
-		GetNotificationsForUser(uuid.MustParse(session.User.Uuid), notificationLimit)
+		GetNotifications(uuid.MustParse(session.User.Uuid), notificationLimit)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
