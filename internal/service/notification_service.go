@@ -29,3 +29,12 @@ func (n *NotificationService) GetNotificationsForUser(userUuid uuid.UUID, limit 
 	notificationEntities := n.notificationRepository.FindByUser(user, limit)
 	return mapper.GetNotificationModelsFromEntities(notificationEntities), nil
 }
+
+func (n NotificationService) AcknowledgeNotificationsForUser(userUuid uuid.UUID, ack *model.NotificationAcknowledgement) error {
+	user, err := n.userRepository.FindOneByUuid(userUuid)
+	if err != nil {
+		return err
+	}
+	result := n.notificationRepository.AcknowledgeNotifications(user.ID, ack.DatetimeAcknowledged)
+	return result.Error
+}

@@ -12,6 +12,19 @@ paths:
           description: 200 response
         '403':
           description: 403 response
+    patch:
+      operationId: acknowledgeNotificationsForUserV1
+      summary: Acknowledge notifications for user
+      requestBody:
+        description: the last seen notification
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationAcknowledgement"
+      responses:
+        '200':
+          description: 200 response
 components:
   schemas:
     User:
@@ -54,6 +67,14 @@ components:
           $ref: '#/components/schemas/NotificationType'
         triggered_by_user:
           $ref: '#/components/schemas/User'
+    NotificationAcknowledgement:
+      type: object
+      required:
+        - datetime_acknowledged
+      properties:
+        datetime_acknowledged:
+          type: string
+          format: date-time
     NotificationType:
       type: string
       enum:

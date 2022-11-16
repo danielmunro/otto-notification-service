@@ -5,6 +5,7 @@ import (
 	"github.com/danielmunro/otto-notification-service/internal/entity"
 	"github.com/danielmunro/otto-notification-service/internal/model"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type NotificationRepository struct {
@@ -41,6 +42,13 @@ func (n *NotificationRepository) FindByUser(user *entity.User, limit int) []*ent
 		Limit(limit).
 		Find(&notifications)
 	return notifications
+}
+
+func (n *NotificationRepository) AcknowledgeNotifications(userID uint, datetime time.Time) *gorm.DB {
+	return n.conn.
+		Model(&entity.Notification{}).
+		Where("user_id = ? AND created_at < ?", userID, datetime).
+		Update("seen", true)
 }
 
 func (n *NotificationRepository) Create(notification *entity.Notification) *gorm.DB {

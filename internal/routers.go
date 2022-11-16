@@ -56,6 +56,12 @@ var routes = Routes{
 		Index,
 	},
 	{
+		"AcknowledgeNotificationsForUserV1",
+		strings.ToUpper("Patch"),
+		"/notification",
+		controller.AcknowledgeNotificationsForUserV1,
+	},
+	{
 		"GetNotificationsForUserV1",
 		strings.ToUpper("Get"),
 		"/notification",
