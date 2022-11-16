@@ -2,10 +2,7 @@ package kafka
 
 import (
 	"encoding/json"
-	"github.com/danielmunro/otto-notification-service/internal/db"
-	"github.com/danielmunro/otto-notification-service/internal/mapper"
 	"github.com/danielmunro/otto-notification-service/internal/model"
-	"github.com/danielmunro/otto-notification-service/internal/repository"
 	"github.com/danielmunro/otto-notification-service/internal/service"
 	"github.com/google/uuid"
 	"log"
@@ -21,8 +18,7 @@ func InitializeAndRunLoop() {
 func loopKafkaReader() error {
 	reader := GetReader()
 	notificationService := service.CreateNotificationService()
-	conn := db.CreateDefaultConnection()
-	userRepository := repository.CreateUserRepository(conn)
+	userService := service.CreateUserService()
 	for {
 		log.Print("listening for kafka messages")
 		data, err := reader.ReadMessage(-1)
@@ -33,19 +29,16 @@ func loopKafkaReader() error {
 		log.Print("message received on topic :: ", data.TopicPartition.String())
 		log.Print("data :: ", string(data.Value))
 		if *data.TopicPartition.Topic == "users" {
-			readUser(userRepository, data.Value)
+			readUser(userService, data.Value)
 		} else if *data.TopicPartition.Topic == "images" {
-			updateUserImage(userRepository, data.Value)
+			updateUserImage(userService, data.Value)
 		} else if *data.TopicPartition.Topic == "follows" {
 			userFollowed(notificationService, data.Value)
 		}
 	}
 }
 
-func userFollowed(
-	notificationService *service.NotificationService,
-	data []byte,
-) {
+func userFollowed(notificationService *service.NotificationService, data []byte) {
 	log.Print("consuming user followed message :: ", string(data))
 	result := decodeToMap(data)
 	userData := result["user"].(map[string]interface{})
@@ -55,23 +48,20 @@ func userFollowed(
 	notificationService.CreateFollowNotification(userUuid, followingUuid)
 }
 
-func updateUserImage(userRepository *repository.UserRepository, data []byte) {
+func updateUserImage(userService *service.UserService, data []byte) {
 	result := decodeToMap(data)
 	user := result["user"].(map[string]interface{})
-	userUuid := user["uuid"].(string)
+	userUuidStr := user["uuid"].(string)
 	s3Key := result["s3_key"].(string)
-	log.Print("update user profile pic :: {}, {}, {}", userUuid, s3Key, result)
-	userEntity, err := userRepository.FindOneByUuid(uuid.MustParse(userUuid))
+	userUuid, err := uuid.Parse(userUuidStr)
 	if err != nil {
-		log.Print("user not found when updating profile pic")
+		log.Print(err)
 		return
 	}
-	log.Print("update user with s3 key", userEntity.Uuid.String(), s3Key)
-	userEntity.ProfilePic = s3Key
-	userRepository.Save(userEntity)
+	userService.UpdateProfilePic(userUuid, s3Key)
 }
 
-func readUser(userRepository *repository.UserRepository, data []byte) {
+func readUser(userService *service.UserService, data []byte) {
 	log.Print("consuming user message ", string(data))
 	userModel, err := model.DecodeMessageToUser(data)
 	if err != nil {
@@ -80,16 +70,10 @@ func readUser(userRepository *repository.UserRepository, data []byte) {
 	}
 	_, err = uuid.Parse(userModel.Uuid)
 	if err != nil {
+		log.Print(err)
 		return
 	}
-	userEntity, err := userRepository.FindOneByUuid(uuid.MustParse(userModel.Uuid))
-	if err == nil {
-		userEntity.UpdateUserProfileFromModel(userModel)
-		userRepository.Save(userEntity)
-	} else {
-		userEntity = mapper.GetUserEntityFromModel(userModel)
-		userRepository.Create(userEntity)
-	}
+	userService.UpsertUser(userModel)
 }
 
 func decodeToMap(data []byte) map[string]interface{} {
