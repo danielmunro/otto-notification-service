@@ -47,7 +47,7 @@ func (n *NotificationRepository) FindByUser(user *entity.User, limit int) []*ent
 func (n *NotificationRepository) AcknowledgeNotifications(userID uint, ack *model.NotificationAcknowledgement) *gorm.DB {
 	return n.conn.
 		Model(&entity.Notification{}).
-		Where("user_id = ? AND created_at < ? AND created_at > ?", userID, ack.DatetimeStarted, ack.DatetimeEnded).
+		Where("user_id = ? AND created_at <= ? AND created_at >= ?", userID, ack.DatetimeStarted, ack.DatetimeEnded).
 		Update("seen", true)
 }
 
