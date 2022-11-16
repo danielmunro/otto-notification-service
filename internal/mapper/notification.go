@@ -8,6 +8,7 @@ import (
 func GetNotificationModelFromEntity(notification *entity.Notification) *model.Notification {
 	return &model.Notification{
 		Uuid:             notification.Uuid.String(),
+		CreatedAt:        notification.CreatedAt,
 		User:             *GetUserModelFromEntity(notification.User),
 		Seen:             notification.Seen,
 		Link:             notification.Link,

@@ -1,7 +1,10 @@
 package model
 
+import "time"
+
 type Notification struct {
 	Uuid             string           `json:"uuid"`
+	CreatedAt        time.Time        `json:"created_at,omitempty"`
 	User             User             `json:"user"`
 	Seen             bool             `json:"seen"`
 	Link             string           `json:"link"`
