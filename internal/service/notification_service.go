@@ -35,6 +35,6 @@ func (n NotificationService) AcknowledgeNotificationsForUser(userUuid uuid.UUID,
 	if err != nil {
 		return err
 	}
-	result := n.notificationRepository.AcknowledgeNotifications(user.ID, ack.DatetimeAcknowledged)
+	result := n.notificationRepository.AcknowledgeNotifications(user.ID, ack)
 	return result.Error
 }

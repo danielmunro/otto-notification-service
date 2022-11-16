@@ -7,7 +7,8 @@ import (
 )
 
 type NotificationAcknowledgement struct {
-	DatetimeAcknowledged time.Time `json:"datetime_acknowledged"`
+	DatetimeStarted time.Time `json:"datetime_started"`
+	DatetimeEnded   time.Time `json:"datetime_ended"`
 }
 
 func DecodeRequestToNotificationAcknowledgement(r *http.Request) (*NotificationAcknowledgement, error) {

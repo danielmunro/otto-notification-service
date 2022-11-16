@@ -56,6 +56,9 @@ components:
         uuid:
           type: string
           format: uuid
+        created_at:
+          type: string
+          format: date-time
         user:
           $ref: '#/components/schemas/User'
         seen:
@@ -70,9 +73,13 @@ components:
     NotificationAcknowledgement:
       type: object
       required:
-        - datetime_acknowledged
+        - datetime_started
+        - datetime_ended
       properties:
-        datetime_acknowledged:
+        datetime_started:
+          type: string
+          format: date-time
+        datetime_ended:
           type: string
           format: date-time
     NotificationType:
