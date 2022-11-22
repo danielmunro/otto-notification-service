@@ -19,6 +19,7 @@ func loopKafkaReader() error {
 	reader := GetReader()
 	notificationService := service.CreateNotificationService()
 	userService := service.CreateUserService()
+	postService := service.CreatePostService()
 	for {
 		log.Print("listening for kafka messages")
 		data, err := reader.ReadMessage(-1)
@@ -34,8 +35,20 @@ func loopKafkaReader() error {
 			updateUserImage(userService, data.Value)
 		} else if *data.TopicPartition.Topic == "follows" {
 			userFollowed(notificationService, data.Value)
+		} else if *data.TopicPartition.Topic == "posts" {
+			readPost(postService, data.Value)
 		}
 	}
+}
+
+func readPost(postService *service.PostService, data []byte) {
+	postModel, err := model.DecodeMessageToPost(data)
+	if err != nil {
+		log.Print("error reading post kafka topic :: ", err)
+		return
+	}
+	log.Print("upsert post :: ", postModel.Uuid)
+	postService.UpsertPost(postModel)
 }
 
 func userFollowed(notificationService *service.NotificationService, data []byte) {

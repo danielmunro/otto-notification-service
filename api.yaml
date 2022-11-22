@@ -10,6 +10,12 @@ paths:
       responses:
         '200':
           description: 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
         '403':
           description: 403 response
     patch:
@@ -27,23 +33,6 @@ paths:
           description: 200 response
 components:
   schemas:
-    User:
-      type: object
-      required:
-        - uuid
-      properties:
-        uuid:
-          type: string
-          format: uuid
-        username:
-          type: string
-        name:
-          type: string
-        profile_pic:
-          type: string
-        is_banned:
-          type: boolean
-          default: false
     Notification:
       type: object
       required:
@@ -88,3 +77,32 @@ components:
         - liked
         - followed
         - replied
+    Post:
+      type: object
+      required:
+        - uuid
+        - text
+        - draft
+        - user
+        - created_at
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        text:
+          type: string
+        draft:
+          type: boolean
+        visibility:
+          $ref: "#/components/schemas/Visibility"
+        user:
+          $ref: "#/components/schemas/User"
+        created_at:
+          type: string
+          format: date-time
+    Visibility:
+      type: string
+      enum:
+        - public
+        - following
+        - private
