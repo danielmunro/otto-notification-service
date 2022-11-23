@@ -61,7 +61,7 @@ func (n *NotificationService) CreateFollowNotification(followModel *model.Follow
 		Uuid:              &notificationUuid,
 		UserID:            following.ID,
 		Seen:              false,
-		Link:              "https://thirdplaceapp.com/u/" + user.Username,
+		Link:              "/u/" + user.Username,
 		NotificationType:  model.FOLLOWED,
 		TriggeredByUserID: user.ID,
 	}
@@ -88,7 +88,7 @@ func (n *NotificationService) CreatePostLikeNotification(postLikeModel *model.Po
 		log.Print("post not found :: {}", postUuid)
 		return
 	}
-	link := "https://thirdplaceapp.com/likes/" + postLikeModel.Post.Uuid
+	link := "/p/" + postLikeModel.Post.Uuid
 	search, _ := n.notificationRepository.FindPostLikeNotification(user, postEntity.User, link)
 	if search != nil {
 		log.Print("notification already found :: ", search.Uuid)
