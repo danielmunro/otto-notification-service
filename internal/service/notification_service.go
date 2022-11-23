@@ -64,3 +64,25 @@ func (n *NotificationService) CreateFollowNotification(userUuid uuid.UUID, follo
 	}
 	n.notificationRepository.Create(notification)
 }
+
+//func (n *NotificationService) CreateLikeNotification(userUuid uuid.UUID, posterUuid uuid.UUID, postUuid uuid.UUID) {
+//	user, err := n.userRepository.FindOneByUuid(userUuid)
+//	if err != nil {
+//		return
+//	}
+//	link := "http://thirdplaceapp.com/likes/" + postUuid.String()
+//	search, _ := n.notificationRepository.FindNotification(user, postUuid)
+//	if search != nil {
+//		return
+//	}
+//	notificationUuid := uuid.New()
+//	notification := &entity.Notification{
+//		Uuid:              &notificationUuid,
+//		UserID:            following.ID,
+//		Seen:              false,
+//		Link:              "https://thirdplaceapp.com/u/" + user.Username,
+//		NotificationType:  model.FOLLOWED,
+//		TriggeredByUserID: user.ID,
+//	}
+//	n.notificationRepository.Create(notification)
+//}

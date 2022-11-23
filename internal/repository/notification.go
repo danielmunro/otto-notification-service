@@ -15,6 +15,22 @@ func CreateNotificationRepository(conn *gorm.DB) *NotificationRepository {
 	return &NotificationRepository{conn}
 }
 
+func (n *NotificationRepository) FindNotificationByUrl(user *entity.User, postUser *entity.User, link string) (*entity.Notification, error) {
+	notification := &entity.Notification{}
+	n.conn.
+		Table("notifications").
+		Where(
+			"notifications.user_id = ? AND notifications.triggered_by_user_id = ? AND notifications.link = ?",
+			postUser.ID,
+			user.ID,
+			link,
+		).Find(notification)
+	if notification.ID == 0 {
+		return nil, errors.New("notification not found")
+	}
+	return notification, nil
+}
+
 func (n *NotificationRepository) FindFollowNotification(user *entity.User, following *entity.User) (*entity.Notification, error) {
 	notification := &entity.Notification{}
 	n.conn.
