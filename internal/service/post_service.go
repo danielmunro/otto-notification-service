@@ -23,12 +23,20 @@ func CreatePostService() *PostService {
 }
 
 func (p *PostService) UpsertPost(postModel *model.Post) {
-	postEntity, err := p.postRepository.FindOneByUuid(uuid.MustParse(postModel.Uuid))
+	postUuid, err := uuid.Parse(postModel.Uuid)
+	if err != nil {
+		return
+	}
+	userUuid, err := uuid.Parse(postModel.User.Uuid)
+	if err != nil {
+		return
+	}
+	postEntity, err := p.postRepository.FindOneByUuid(postUuid)
 	if err == nil {
 		postEntity.UpdatePostFromModel(postModel)
 		p.postRepository.Save(postEntity)
 	} else {
-		user, err := p.userRepository.FindOneByUuid(uuid.MustParse(postModel.User.Uuid))
+		user, err := p.userRepository.FindOneByUuid(userUuid)
 		if err != nil {
 			log.Print("user not found when upserting post :: ", postModel)
 			return
