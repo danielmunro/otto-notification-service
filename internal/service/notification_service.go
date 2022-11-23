@@ -7,6 +7,7 @@ import (
 	"github.com/danielmunro/otto-notification-service/internal/model"
 	"github.com/danielmunro/otto-notification-service/internal/repository"
 	"github.com/google/uuid"
+	"log"
 )
 
 type NotificationService struct {
@@ -68,23 +69,28 @@ func (n *NotificationService) CreateFollowNotification(followModel *model.Follow
 func (n *NotificationService) CreatePostLikeNotification(postLikeModel *model.PostLike) {
 	userUuid, err := uuid.Parse(postLikeModel.User.Uuid)
 	if err != nil {
+		log.Print("error parsing userUuid :: ", err)
 		return
 	}
 	user, err := n.userRepository.FindOneByUuid(userUuid)
 	if err != nil {
+		log.Print("user not found :: {} :: {}", userUuid, postLikeModel.Post.Uuid)
 		return
 	}
 	postUserUuid, err := uuid.Parse(postLikeModel.Post.User.Uuid)
 	if err != nil {
+		log.Print("error parsing postUserUuid :: ", err)
 		return
 	}
 	postUser, err := n.userRepository.FindOneByUuid(postUserUuid)
 	if err != nil {
+		log.Print("post user not found :: {} :: {}", postUserUuid, postLikeModel.Post.Uuid)
 		return
 	}
 	link := "https://thirdplaceapp.com/likes/" + postLikeModel.Post.Uuid
 	search, _ := n.notificationRepository.FindPostLikeNotification(user, postUser, link)
 	if search != nil {
+		log.Print("notification already found :: ", search.Uuid)
 		return
 	}
 	notificationUuid := uuid.New()
@@ -96,5 +102,8 @@ func (n *NotificationService) CreatePostLikeNotification(postLikeModel *model.Po
 		NotificationType:  model.POST_LIKED,
 		TriggeredByUserID: user.ID,
 	}
-	n.notificationRepository.Create(notification)
+	result := n.notificationRepository.Create(notification)
+	if result.Error != nil {
+		log.Print("error creating notification entity :: ", result.Error)
+	}
 }
