@@ -17,9 +17,7 @@ func InitializeAndRunLoop() {
 
 func loopKafkaReader() error {
 	reader := GetReader()
-	notificationService := service.CreateNotificationService()
-	userService := service.CreateUserService()
-	postService := service.CreatePostService()
+	consumerService := service.CreateConsumerService()
 	for {
 		log.Print("listening for kafka messages")
 		data, err := reader.ReadMessage(-1)
@@ -30,38 +28,38 @@ func loopKafkaReader() error {
 		log.Print("message received on topic :: ", data.TopicPartition.String())
 		log.Print("data :: ", string(data.Value))
 		if *data.TopicPartition.Topic == "users" {
-			readUser(userService, data.Value)
+			readUser(consumerService, data.Value)
 		} else if *data.TopicPartition.Topic == "images" {
-			updateUserImage(userService, data.Value)
+			updateUserImage(consumerService, data.Value)
 		} else if *data.TopicPartition.Topic == "follows" {
-			userFollowed(notificationService, data.Value)
+			userFollowed(consumerService, data.Value)
 		} else if *data.TopicPartition.Topic == "posts" {
-			readPost(postService, data.Value)
+			readPost(consumerService, data.Value)
 		}
 	}
 }
 
-func readPost(postService *service.PostService, data []byte) {
+func readPost(consumerService *service.ConsumerService, data []byte) {
 	postModel, err := model.DecodeMessageToPost(data)
 	if err != nil {
 		log.Print("error reading post kafka topic :: ", err)
 		return
 	}
 	log.Print("upsert post :: ", postModel.Uuid)
-	postService.UpsertPost(postModel)
+	consumerService.UpsertPost(postModel)
 }
 
-func userFollowed(notificationService *service.NotificationService, data []byte) {
+func userFollowed(consumerService *service.ConsumerService, data []byte) {
 	log.Print("consuming user followed message :: ", string(data))
-	result := decodeToMap(data)
-	userData := result["user"].(map[string]interface{})
-	userUuid := uuid.MustParse(userData["uuid"].(string))
-	followingData := result["following"].(map[string]interface{})
-	followingUuid := uuid.MustParse(followingData["uuid"].(string))
-	notificationService.CreateFollowNotification(userUuid, followingUuid)
+	followModel, err := model.DecodeMessageToFollow(data)
+	if err != nil {
+		log.Print("error decoding follow :: ", err)
+		return
+	}
+	consumerService.UpsertFollow(followModel)
 }
 
-func updateUserImage(userService *service.UserService, data []byte) {
+func updateUserImage(consumerService *service.ConsumerService, data []byte) {
 	result := decodeToMap(data)
 	user := result["user"].(map[string]interface{})
 	userUuidStr := user["uuid"].(string)
@@ -71,10 +69,10 @@ func updateUserImage(userService *service.UserService, data []byte) {
 		log.Print(err)
 		return
 	}
-	userService.UpdateProfilePic(userUuid, s3Key)
+	consumerService.UpdateProfilePic(userUuid, s3Key)
 }
 
-func readUser(userService *service.UserService, data []byte) {
+func readUser(consumerService *service.ConsumerService, data []byte) {
 	log.Print("consuming user message ", string(data))
 	userModel, err := model.DecodeMessageToUser(data)
 	if err != nil {
@@ -86,7 +84,7 @@ func readUser(userService *service.UserService, data []byte) {
 		log.Print(err)
 		return
 	}
-	userService.UpsertUser(userModel)
+	consumerService.UpsertUser(userModel)
 }
 
 func decodeToMap(data []byte) map[string]interface{} {

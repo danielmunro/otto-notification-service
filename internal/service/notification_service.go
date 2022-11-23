@@ -40,12 +40,12 @@ func (n *NotificationService) AcknowledgeNotifications(userUuid uuid.UUID, ack *
 	return result.Error
 }
 
-func (n *NotificationService) CreateFollowNotification(userUuid uuid.UUID, followingUuid uuid.UUID) {
-	user, err := n.userRepository.FindOneByUuid(userUuid)
+func (n *NotificationService) CreateFollowNotification(followModel *model.Follow) {
+	user, err := n.userRepository.FindOneByUuid(uuid.MustParse(followModel.User.Uuid))
 	if err != nil {
 		return
 	}
-	following, err := n.userRepository.FindOneByUuid(followingUuid)
+	following, err := n.userRepository.FindOneByUuid(uuid.MustParse(followModel.Following.Uuid))
 	if err != nil {
 		return
 	}

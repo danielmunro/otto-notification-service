@@ -15,9 +15,9 @@ func CreatePostRepository(conn *gorm.DB) *PostRepository {
 	return &PostRepository{conn}
 }
 
-func (u *PostRepository) FindOneByUuid(uuid uuid.UUID) (*entity.Post, error) {
+func (p *PostRepository) FindOneByUuid(uuid uuid.UUID) (*entity.Post, error) {
 	post := &entity.Post{}
-	u.conn.Where("uuid = ?", uuid).Find(post)
+	p.conn.Where("uuid = ?", uuid).Find(post)
 	if post.ID == 0 {
 		return nil, errors.New("user not found")
 	}

@@ -106,3 +106,20 @@ components:
         - public
         - following
         - private
+    Follow:
+      type: object
+      required:
+        - uuid
+        - user
+        - following
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        deleted_at:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+        following:
+          $ref: "#/components/schemas/User"
