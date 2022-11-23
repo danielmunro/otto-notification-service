@@ -17,7 +17,10 @@ func CreatePostRepository(conn *gorm.DB) *PostRepository {
 
 func (p *PostRepository) FindOneByUuid(uuid uuid.UUID) (*entity.Post, error) {
 	post := &entity.Post{}
-	p.conn.Where("uuid = ?", uuid).Find(post)
+	p.conn.
+		Preload("User").
+		Where("uuid = ?", uuid).
+		Find(post)
 	if post.ID == 0 {
 		return nil, errors.New("user not found")
 	}
