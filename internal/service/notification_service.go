@@ -13,6 +13,7 @@ import (
 type NotificationService struct {
 	userRepository         *repository.UserRepository
 	notificationRepository *repository.NotificationRepository
+	postRepository         *repository.PostRepository
 }
 
 func CreateNotificationService() *NotificationService {
@@ -20,6 +21,7 @@ func CreateNotificationService() *NotificationService {
 	return &NotificationService{
 		repository.CreateUserRepository(conn),
 		repository.CreateNotificationRepository(conn),
+		repository.CreatePostRepository(conn),
 	}
 }
 
@@ -77,18 +79,17 @@ func (n *NotificationService) CreatePostLikeNotification(postLikeModel *model.Po
 		log.Print("user not found :: {} :: {}", userUuid, postLikeModel.Post.Uuid)
 		return
 	}
-	postUserUuid, err := uuid.Parse(postLikeModel.Post.User.Uuid)
+	postUuid, err := uuid.Parse(postLikeModel.Post.Uuid)
 	if err != nil {
-		log.Print("error parsing postUserUuid :: ", err)
 		return
 	}
-	postUser, err := n.userRepository.FindOneByUuid(postUserUuid)
+	postEntity, err := n.postRepository.FindOneByUuid(postUuid)
 	if err != nil {
-		log.Print("post user not found :: {} :: {}", postUserUuid, postLikeModel.Post.Uuid)
+		log.Print("post not found :: {}", postUuid)
 		return
 	}
 	link := "https://thirdplaceapp.com/likes/" + postLikeModel.Post.Uuid
-	search, _ := n.notificationRepository.FindPostLikeNotification(user, postUser, link)
+	search, _ := n.notificationRepository.FindPostLikeNotification(user, postEntity.User, link)
 	if search != nil {
 		log.Print("notification already found :: ", search.Uuid)
 		return
@@ -96,7 +97,7 @@ func (n *NotificationService) CreatePostLikeNotification(postLikeModel *model.Po
 	notificationUuid := uuid.New()
 	notification := &entity.Notification{
 		Uuid:              &notificationUuid,
-		UserID:            postUser.ID,
+		UserID:            postEntity.User.ID,
 		Seen:              false,
 		Link:              link,
 		NotificationType:  model.POST_LIKED,
