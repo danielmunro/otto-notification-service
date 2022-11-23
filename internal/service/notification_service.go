@@ -65,24 +65,36 @@ func (n *NotificationService) CreateFollowNotification(followModel *model.Follow
 	n.notificationRepository.Create(notification)
 }
 
-//func (n *NotificationService) CreateLikeNotification(userUuid uuid.UUID, posterUuid uuid.UUID, postUuid uuid.UUID) {
-//	user, err := n.userRepository.FindOneByUuid(userUuid)
-//	if err != nil {
-//		return
-//	}
-//	link := "http://thirdplaceapp.com/likes/" + postUuid.String()
-//	search, _ := n.notificationRepository.FindNotification(user, postUuid)
-//	if search != nil {
-//		return
-//	}
-//	notificationUuid := uuid.New()
-//	notification := &entity.Notification{
-//		Uuid:              &notificationUuid,
-//		UserID:            following.ID,
-//		Seen:              false,
-//		Link:              "https://thirdplaceapp.com/u/" + user.Username,
-//		NotificationType:  model.FOLLOWED,
-//		TriggeredByUserID: user.ID,
-//	}
-//	n.notificationRepository.Create(notification)
-//}
+func (n *NotificationService) CreatePostLikeNotification(postLikeModel *model.PostLike) {
+	userUuid, err := uuid.Parse(postLikeModel.User.Uuid)
+	if err != nil {
+		return
+	}
+	user, err := n.userRepository.FindOneByUuid(userUuid)
+	if err != nil {
+		return
+	}
+	postUserUuid, err := uuid.Parse(postLikeModel.Post.User.Uuid)
+	if err != nil {
+		return
+	}
+	postUser, err := n.userRepository.FindOneByUuid(postUserUuid)
+	if err != nil {
+		return
+	}
+	link := "https://thirdplaceapp.com/likes/" + postLikeModel.Post.Uuid
+	search, _ := n.notificationRepository.FindPostLikeNotification(user, postUser, link)
+	if search != nil {
+		return
+	}
+	notificationUuid := uuid.New()
+	notification := &entity.Notification{
+		Uuid:              &notificationUuid,
+		UserID:            postUser.ID,
+		Seen:              false,
+		Link:              link,
+		NotificationType:  model.POST_LIKED,
+		TriggeredByUserID: user.ID,
+	}
+	n.notificationRepository.Create(notification)
+}

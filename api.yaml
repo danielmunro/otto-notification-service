@@ -123,3 +123,13 @@ components:
           $ref: "#/components/schemas/User"
         following:
           $ref: "#/components/schemas/User"
+    PostLike:
+      type: object
+      required:
+        - post
+        - user
+      properties:
+        post:
+          $ref: "#/components/schemas/Post"
+        user:
+          $ref: "#/components/schemas/User"

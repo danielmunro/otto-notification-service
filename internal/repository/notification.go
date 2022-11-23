@@ -15,7 +15,7 @@ func CreateNotificationRepository(conn *gorm.DB) *NotificationRepository {
 	return &NotificationRepository{conn}
 }
 
-func (n *NotificationRepository) FindNotificationByUrl(user *entity.User, postUser *entity.User, link string) (*entity.Notification, error) {
+func (n *NotificationRepository) FindPostLikeNotification(user *entity.User, postUser *entity.User, link string) (*entity.Notification, error) {
 	notification := &entity.Notification{}
 	n.conn.
 		Table("notifications").

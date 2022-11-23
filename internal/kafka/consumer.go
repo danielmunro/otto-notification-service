@@ -35,8 +35,20 @@ func loopKafkaReader() error {
 			userFollowed(consumerService, data.Value)
 		} else if *data.TopicPartition.Topic == "posts" {
 			readPost(consumerService, data.Value)
+		} else if *data.TopicPartition.Topic == "postLikes" {
+			readPostLikes(consumerService, data.Value)
 		}
 	}
+}
+
+func readPostLikes(consumerService *service.ConsumerService, data []byte) {
+	postLikeModel, err := model.DecodeMessageToPostLike(data)
+	if err != nil {
+		log.Print("error reading post like topic :: ", err)
+		return
+	}
+	log.Print("create post like notification :: ", postLikeModel)
+	consumerService.CreatePostLikeNotification(postLikeModel)
 }
 
 func readPost(consumerService *service.ConsumerService, data []byte) {

@@ -39,3 +39,7 @@ func (c *ConsumerService) UpsertFollow(followModel *model.Follow) {
 		c.notificationService.CreateFollowNotification(followModel)
 	}
 }
+
+func (c *ConsumerService) CreatePostLikeNotification(postLike *model.PostLike) {
+	c.notificationService.CreatePostLikeNotification(postLike)
+}
